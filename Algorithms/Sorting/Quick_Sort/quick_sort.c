@@ -13,43 +13,38 @@ void sort(int* array, int start_index, int end_index)
 	int first_half_index =0;
 	int second_half_index =0;
 	int i =0;
+	int j =0;
+	int pivote = 0;
 	if(start_index >= end_index)
 		return;
 
-	mid = start_index + (end_index - start_index) / 2;
-	sort(array, start_index, mid);
-	sort(array, mid+1, end_index);
-
 	index = start_index;
 	first_half_index = start_index;
-	second_half_index = mid+1;
-	while(first_half_index <= mid && second_half_index <= end_index)
+	second_half_index = end_index;
+	pivote = end_index;
+	i = start_index-1;
+	for(j = start_index; j<= end_index; j++)
 	{
-		if(array[first_half_index] > array[second_half_index])
+		if(array[j] < array[pivote])
 		{
-			temp_array[index++] = array[second_half_index++];
+			i++;
+			temp = array[j];
+			array[j] = array[i];
+			array[i] = temp;
 		}
-		else
-		{
-			temp_array[index++] = array[first_half_index++];
-		}
 	}
-	for(i = first_half_index; i<=mid; i++)
-	{
-		temp_array[index++] = array[i];
-	}
-	for(i = second_half_index; i<=end_index; i++)
-	{
-		temp_array[index++] = array[i];
-	}
-	for(i =start_index; i<=end_index; i++)
-        {
-                array[i] = temp_array[i];
-        }
+	temp = array[pivote];
+	array[pivote] = array[i+1];
+	array[i+1] = temp;
+
+	mid = i+1;
+	sort(array, start_index, mid-1);
+	sort(array, mid+1, end_index);
+
 	return;
 }
 
-bool merge_sort(int* input_array, int size)
+bool quick_sort(int* input_array, int size)
 {
 	int i =0;
 
@@ -59,7 +54,7 @@ bool merge_sort(int* input_array, int size)
 		return false;
 	}
 
-	printf("\n Input array is:  %d\n", size);
+	printf("\n Input array is:  \n");
 	for(i =0; i<size; i++)
 	{
 		printf("%d ", input_array[i]);
@@ -86,9 +81,9 @@ int main(void)
 	{
 		scanf("%d", &input_array[i]);
 	}
-	if(merge_sort(input_array,size) != true)
+	if(quick_sort(input_array, size) != true)
 	{
-		printf("\n Merge Sort Fail to sort input array \n");
+		printf("\n Quick Sort Fail to sort input array \n");
 		return 1;
 	}
 
@@ -98,6 +93,6 @@ int main(void)
 		printf("%d ", input_array[i]);
 	}
 
-	printf("\n Program to sort input array of integer using Merge Sort Algorithm\n\n");
+	printf("\n Program to sort input array of integer using Quick Sort Alorithm\n\n");
 	return 0;
 }
