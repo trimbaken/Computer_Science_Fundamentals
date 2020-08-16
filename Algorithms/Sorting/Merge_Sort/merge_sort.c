@@ -23,7 +23,6 @@ void sort(int* array, int start_index, int end_index)
 	index = start_index;
 	first_half_index = start_index;
 	second_half_index = mid+1;
-	printf("\n start_index [%d], end_index [%d], index [%d], second_half_index [%d]  \n", start_index, end_index, index, second_half_index);
 	while(first_half_index <= mid && second_half_index <= end_index)
 	{
 		if(array[first_half_index] > array[second_half_index])
@@ -61,6 +60,12 @@ bool merge_sort(int* input_array)
 		size++;
 	}
 
+	if(size == INT_MAX)
+	{
+		printf("\n Input array size is more then %d, please provide array with size less than %d \n", INT_MAX, INT_MAX);
+		return false;
+	}
+
 	printf("\n Input array is:  \n");
 	for(i =0; i<size; i++)
 	{
@@ -80,7 +85,7 @@ int main(void)
 	scanf("%d", &size);
 	if(size<0 || size>INT_MAX)
 	{
-		printf("\n Enter valid size\n");
+		printf("\n Enter valid size in the range 0 to %d \n",INT_MAX);
 		return 1;
 	}
 	printf("Enter %d elements of input array \n", size);
