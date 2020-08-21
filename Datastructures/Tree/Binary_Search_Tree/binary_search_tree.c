@@ -1,9 +1,52 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdbool.h>
+
+typedef struct node_s
+{
+	int value;
+	struct node_s* l_child;
+	struct node_s* r_child;
+}Node;
+
+Node** root = NULL;
+
+Node* create_node(int value)
+{
+	Node* node = (Node* )malloc(sizeof(Node));
+
+	node->value = value;
+	node->l_child = NULL;
+	node->r_child = NULL;
+
+	return node;
+}
+
+bool insert_element(int value)
+{
+	Node* new_node = create_node(value);
+	if(root == NULL)
+	{
+		printf("\n First element  \n");
+		root = (Node** )malloc(sizeof(Node*));
+		*root = new_node;
+	}
+	printf("\n inserted %d \n", value);
+	return true;
+}
+
+bool search_element(int value)
+{
+	Node* temp = *root;
+
+	printf("\n root element [%d] \n", temp->value);
+	return true;
+}
 
 void init()
 {
 	int operation =0;
+	int value =0;
 	while(1)
 	{
 		printf("\n Select operation \n");
@@ -29,10 +72,16 @@ void init()
 			case 1:
 			{
 				printf("\n Insert Element  \n");
+				printf("Enter Integer Value \n" );
+				scanf("%d", &value);
+				insert_element(value);
 				break;
 			}
 			case 2:
 			{
+				printf("Enter Integer Value \n" );
+				scanf("%d", &value);
+				search_element(value);
 				printf("\n Search Element  \n");
 				break;
 			}
