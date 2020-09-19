@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include<stdbool.h>
 
+#define max(x,y) x>y?x:y
+
 typedef struct node_s
 {
 	int value;
@@ -34,6 +36,172 @@ bool is_empty()
 		return true;
 	}
 	return false;
+}
+
+int get_height(Node* node)
+{
+	if(node == NULL)
+		return 0;
+	return node->height;
+}
+
+void update_height(Node* node)
+{
+	if(node == NULL)
+		return;
+	node->height = (max(get_height(node->l_child), get_height(node->r_child))) + 1;
+}
+
+
+int get_balance(Node* node)
+{
+	int balance = get_height(node->l_child) - get_height(node->r_child);
+
+	return balance;
+}
+
+void resolve_ll_imbalance(Node* node)
+{
+	if(node == NULL)
+		return;
+	if(node->parent != NULL && node->parent->l_child == node)
+		node->parent->l_child = node->l_child;
+	else if(node->parent != NULL && node->parent->r_child == node)
+		node->parent->r_child = node->l_child;
+	else
+		*root = node->l_child;
+
+	node->l_child->r_child = node;
+	node->l_child->parent = node->parent;
+	node->parent = node->l_child;
+	node->l_child = NULL;
+}
+
+void resolve_rr_imbalance(Node* node)
+{
+	if(node == NULL)
+		return;
+	if(node->parent != NULL && node->parent->l_child == node)
+		node->parent->l_child = node->r_child;
+	else if(node->parent != NULL && node->parent->r_child == node)
+		node->parent->r_child = node->r_child;
+	else
+		*root = node->r_child;
+
+	node->r_child->l_child = node;
+	node->r_child->parent = node->parent;
+	node->parent = node->r_child;
+	node->r_child = NULL;
+}
+
+void resolve_lr_imbalance(Node* node)
+{
+	if(node == NULL)
+		return;
+	Node* temp_l_child = node->l_child;
+
+	if(node->parent != NULL && node->parent->l_child == node)
+		node->parent->l_child = node->l_child;
+	else if(node->parent != NULL && node->parent->r_child == node)
+		node->parent->r_child = node->l_child;
+	else
+		*root = node->l_child;
+	temp_l_child->parent = node->parent;
+	node->l_child = temp_l_child->r_child->r_child;
+	temp_l_child->r_child->r_child = node;
+	node->parent = temp_l_child->r_child;
+	if(node->l_child != NULL)
+		node->l_child->parent = node;
+
+	printf("node %d, node->parent %d, %d", node->value, node->parent->value, temp_l_child->r_child->parent->value);
+
+	update_height(node);
+	update_height(node->parent);
+	update_height(temp_l_child);
+	resolve_rr_imbalance(temp_l_child);
+}
+
+void resolve_rl_imbalance(Node* node)
+{
+	if(node == NULL)
+		return;
+	Node* temp_r_child = node->r_child;
+
+	if(node->parent != NULL && node->parent->l_child == node)
+		node->parent->l_child = node->r_child;
+	else if(node->parent != NULL && node->parent->r_child == node)
+		node->parent->r_child = node->r_child;
+	else
+		*root = node->r_child;
+	temp_r_child->parent = node->parent;
+	node->r_child = temp_r_child->l_child->l_child;
+	temp_r_child->l_child->l_child = node;
+	node->parent = temp_r_child->l_child;
+	if(node->r_child != NULL)
+		node->r_child->parent = node;
+
+//	printf("node %d, node->parent %d, %d", node->value, node->parent->value, temp_l_child->r_child->parent->value);
+
+	update_height(node);
+	update_height(node->parent);
+	update_height(temp_r_child);
+	resolve_ll_imbalance(temp_r_child);
+}
+
+
+
+void balance_height(Node* node)
+{
+	if(node == NULL)
+		return;
+	int balance = get_balance(node);
+	printf("Node %d height balance %d\n", node->value, balance);
+
+	if(balance == -1 || balance == 0 || balance == 1)
+		return;
+	printf("Imbalance is observed at node %d & imbalance is %d ", node->value, balance);
+
+	if(balance == 2)
+	{
+		if(node->l_child->r_child == NULL)
+		{
+			printf("LL Imbalancen \n");
+			resolve_ll_imbalance(node);
+		}
+		else
+		{
+			printf("LR Imbalance \n");
+			resolve_lr_imbalance(node);
+		}
+	}
+	else
+	{
+		if(node->r_child->l_child == NULL)
+		{
+			printf("RR Imbalance \n");
+			resolve_rr_imbalance(node);
+		}
+		else
+		{
+			printf("RL Imbalance \n");
+			resolve_rl_imbalance(node);
+		}
+	}
+}
+
+void update_height_and_balance_tree(Node* base_node)
+{
+	Node* temp_node;
+	temp_node = base_node;
+	while(temp_node != NULL)
+	{
+		update_height(temp_node);
+		balance_height(temp_node);
+		update_height(temp_node);
+		temp_node = temp_node->parent;
+
+	}
+	return ;
 }
 
 bool insert_element(int value)
@@ -88,6 +256,7 @@ bool insert_element(int value)
 		}
 	}
 	printf("\n inserted %d \n", value);
+	update_height_and_balance_tree(new_node);
 	return true;
 }
 
@@ -150,7 +319,7 @@ void inorder_traval_loop(Node* temp_node)
 	if(temp_node == NULL)
 		return;
 	inorder_traval_loop(temp_node->l_child);
-	printf("%d ", temp_node->value);
+	printf("Node value %d, Node Height %d\n", temp_node->value, temp_node->height);
 	inorder_traval_loop(temp_node->r_child);
 
 	return;
