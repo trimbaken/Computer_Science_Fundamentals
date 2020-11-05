@@ -29,8 +29,9 @@ sc_X = StandardScaler()
 X_train = sc_X.fit_transform(X_train)
 #print(X_train)
 X_test = sc_X.transform(X_test)
-#sc_y = StandardScaler()
-#y_train = sc_y.fit_transform(y_train)
+sc_y = StandardScaler()
+y_train = y_train.reshape(-1,1)
+y_train = sc_y.fit_transform(y_train)
 
 #print(X_test)
 
@@ -41,6 +42,6 @@ regressor.fit(X_train, y_train)
 
 # Predicting the Test set results
 y_pred = regressor.predict(X_test)
-
+y_pred = sc_y.inverse_transform(y_pred)
 print("y_test ", y_test)
 print("y_pred ", y_pred)
