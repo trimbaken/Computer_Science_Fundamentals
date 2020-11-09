@@ -22,8 +22,7 @@ X_test = sc.transform(X_test)
 
 # Training the SVM model on the Training set
 from sklearn.svm import SVC
-#classifier = SVC(kernel = 'linear', random_state = 0) // Accuracy = 0.90
-classifier = SVC(kernel = 'rbf', random_state = 0)
+classifier = SVC(kernel = 'linear', random_state = 0)
 classifier.fit(X_train, y_train)
 
 # Predicting a new result
