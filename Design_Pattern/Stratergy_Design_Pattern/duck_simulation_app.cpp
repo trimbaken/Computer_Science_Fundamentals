@@ -13,29 +13,48 @@ class Duck {
 		{
 			cout<<"Display duck on screen"<<endl;
 		}
-		void fly()
-		{
-			cout<<"Duck fly in sky"<<endl;
-		}
-		void quack()
-		{
-			cout<<"Duck quack"<<endl;
-		}
 };
 
-class MallardDuck : public Duck {
+class Flyable {
+	public:
+		virtual void fly() =0;
+//		virtual void flyForShotDuration() =0;
+};
+
+class Quackable {
+	public:
+		virtual void quack() =0;
+};
+
+class MallardDuck : public Duck, Flyable, Quackable {
 	public:
 		void name()
 		{
 			cout<<"Duck Name : Mallard Duck"<<endl;
 		}
+		void fly()
+		{
+			cout<<"Mallard Duck Fly in sky"<<endl;
+		}
+		void quack()
+		{
+			cout<<"Mallard Duck quack"<<endl;
+		}
 };
 
-class RedheaddDuck : public Duck {
+class RedheaddDuck : public Duck, Flyable, Quackable {
 	public:
 		void name()
 		{
 			cout<<"Duck Name : Redhead Duck"<<endl;
+		}
+		void fly()
+		{
+			cout<<"Redhead Duck Fly in sky"<<endl;
+		}
+		void quack()
+		{
+			cout<<"Redhead Duck quack"<<endl;
 		}
 };
 
@@ -44,10 +63,6 @@ class RabbardDuck : public Duck {
 		void name()
 		{
 			cout<<"Duck Name : Rabbar Duck"<<endl;
-		}
-		void fly()
-		{
-			cout<<"Rabbar Duck don't fly"<<endl;
 		}
 };
 
@@ -78,8 +93,6 @@ int main(void)
 	rabbardDuck.name();
 	rabbardDuck.display();
 	rabbardDuck.swim();
-	rabbardDuck.fly();
-	rabbardDuck.quack();
 	cout<<endl;
 
 	cout<<" Program to implement Duck Simulation App"<<endl;
