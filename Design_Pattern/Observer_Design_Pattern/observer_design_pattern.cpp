@@ -1,105 +1,12 @@
 #include<stdio.h>
 #include<iostream>
+#include <list>
 
 using namespace std;
 
-class CurrentCondition {
-	private:
-		int temperature;
-		int humidity;
-		int pressure;
+class Observer {
 	public:
-		void set_temperature(int new_temperature)
-		{
-			temperature = new_temperature;
-		}
-		void set_humidity(int new_humidity)
-		{
-			humidity = new_humidity;
-		}
-		void set_pressure(int new_pressure)
-		{
-			pressure = new_pressure;
-		}
-		void display()
-		{
-			cout<<endl<<"Current Condition:"<<endl;
-			cout<<"Temp :"<<temperature<<endl<<"Humidity :"<<humidity<<endl<<"Pressure :"<<pressure<<endl;
-		}
-
-};
-
-class WeatherStats {
-	private:
-		int avg_temperature;
-		int min_temperature;
-		int max_temperature;
-	public:
-		void set_avg_temperature(int new_temperature)
-		{
-			avg_temperature = new_temperature;
-		}
-		void set_min_temperature(int new_temperature)
-		{
-			min_temperature = new_temperature - 10;
-		}
-		void set_max_temperature(int new_temperature)
-		{
-			max_temperature = new_temperature + 10;
-		}
-		void display()
-		{
-			cout<<endl<<"Weather Stats:"<<endl;
-			cout<<"Avg :"<<avg_temperature<<endl<<"Min :"<<min_temperature<<endl<<"Max :"<<max_temperature<<endl;
-		}
-
-};
-
-
-class WeatherData {
-	private:
-		int temperature;
-		int humidity;
-		int pressure;
-		CurrentCondition current_condition;
-		WeatherStats weather_stats;
-	public:
-		void set_current_codition(CurrentCondition new_current_condition)
-		{
-			current_condition = new_current_condition;
-		}
-		void set_weather_stats(WeatherStats new_weather_stats)
-		{
-			weather_stats = new_weather_stats;
-		}
-		void set_temperature(int new_temperature)
-		{
-			temperature = new_temperature;
-		}
-		void set_humidity(int new_humidity)
-		{
-			humidity = new_humidity;
-		}
-		void set_pressure(int new_pressure)
-		{
-			pressure = new_pressure;
-		}
-		void display_current_condition()
-		{
-			current_condition.set_temperature(temperature);
-			current_condition.set_humidity(humidity);
-			current_condition.set_pressure(pressure);
-
-			current_condition.display();
-		}
-		void display_weather_stats()
-		{
-			weather_stats.set_avg_temperature(temperature);
-			weather_stats.set_min_temperature(temperature);
-			weather_stats.set_max_temperature(temperature);
-
-			weather_stats.display();
-		}
+		virtual void update()=0;
 };
 
 class WeatherStation {
@@ -107,7 +14,8 @@ class WeatherStation {
 		int temperature;
 		int humidity;
 		int pressure;
-		WeatherData weather_data;
+		list<Observer*> observer_list;
+		list<Observer*>::iterator it;
 	public:
 		void set_temperature(int new_temperature)
 		{
@@ -133,22 +41,77 @@ class WeatherStation {
 		{
 			return pressure;
 		}
-		void set_weather_data(WeatherData new_weather_data)
+		void add_observer(Observer* new_observer)
 		{
-			weather_data = new_weather_data;
+			observer_list.insert(observer_list.end(), new_observer);
 		}
 		void push_weather_data()
 		{
-			weather_data.set_temperature(temperature);
-			weather_data.set_humidity(humidity);
-			weather_data.set_pressure(pressure);
-			weather_data.display_weather_stats();
-			weather_data.display_current_condition();
+			for(it = observer_list.begin(); it != observer_list.end(); it++)
+			{
+				Observer* temp;
+				temp = *it;
+				temp->update();
+			}
 		}
 };
 
 WeatherStation weather_station;
 
+class CurrentCondition : public Observer {
+	public:
+		void update()
+		{
+			cout<<endl<<"Current Condition:"<<endl;
+			cout<<"Temp :"<<weather_station.get_temperature()<<endl<<"Humidity :"<<weather_station.get_humidity()<<endl<<"Pressure :"<<weather_station.get_pressure()<<endl;
+		}
+};
+
+class WeatherStats : public Observer {
+		int avg_temperature;
+		int min_temperature;
+		int max_temperature;
+	public:
+		void set_avg_temperature(int new_temperature)
+		{
+			avg_temperature = new_temperature;
+		}
+		void set_min_temperature(int new_temperature)
+		{
+			min_temperature = new_temperature - 10;
+		}
+		void set_max_temperature(int new_temperature)
+		{
+			max_temperature = new_temperature + 10;
+		}
+		void display()
+		{
+			cout<<endl<<"Weather Stats:"<<endl;
+			cout<<"Avg :"<<avg_temperature<<endl<<"Min :"<<min_temperature<<endl<<"Max :"<<max_temperature<<endl;
+		}
+		void update()
+		{
+			avg_temperature = weather_station.get_temperature();
+			min_temperature = weather_station.get_temperature() - 10;
+			max_temperature = weather_station.get_temperature() + 10;
+
+			display();
+		}
+
+};
+
+class Forecast : public Observer {
+	public:
+		void update()
+		{
+			int temperature = weather_station.get_temperature();
+			if(temperature >40) {
+				cout<<"Today's Forcast : Dry"<<endl;
+			} else {
+				cout<<"Today's Forcast : Humid"<<endl;
+			}
+		}
+};
 
 int main(void)
 {
@@ -157,18 +120,20 @@ int main(void)
 	weather_station.set_humidity(50);
 	weather_station.set_pressure(60);
 
-	WeatherData weather_data;
-
-
 	CurrentCondition current_condition;
-	weather_data.set_current_codition(current_condition);
-
 	WeatherStats weather_stats;
-	weather_data.set_weather_stats(weather_stats);
 
-	weather_station.set_weather_data(weather_data);
+	weather_station.add_observer(&current_condition);
+	weather_station.add_observer(&weather_stats);
+
 	weather_station.push_weather_data();
 
-	cout<<"Program to implement Observer Design Pattern"<<endl;
+// Add new Display
+	Forecast forecast;
+	weather_station.add_observer(&forecast);
+// Update weather data to all devices
+	weather_station.push_weather_data();
+
+	cout<<endl<<"Program to implement Observer Design Pattern"<<endl;
 	return 0;
 }
