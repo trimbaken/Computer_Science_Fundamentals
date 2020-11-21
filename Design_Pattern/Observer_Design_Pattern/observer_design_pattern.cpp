@@ -3,40 +3,6 @@
 
 using namespace std;
 
-class WeatherStation {
-	private:
-		int temperature;
-		int humidity;
-		int pressure;
-	public:
-		void set_temperature(int new_temperature)
-		{
-			temperature = new_temperature;
-		}
-		int get_temperature()
-		{
-			return temperature;
-		}
-		void set_humidity(int new_humidity)
-		{
-			humidity = new_humidity;
-		}
-		int get_humidity()
-		{
-			return humidity;
-		}
-		void set_pressure(int new_pressure)
-		{
-			pressure = new_pressure;
-		}
-		int get_pressure()
-		{
-			return pressure;
-		}
-};
-
-WeatherStation weather_station;
-
 class CurrentCondition {
 	private:
 		int temperature;
@@ -106,12 +72,17 @@ class WeatherData {
 		{
 			weather_stats = new_weather_stats;
 		}
-
-		void pull_data()
+		void set_temperature(int new_temperature)
 		{
-			temperature = weather_station.get_temperature();
-			humidity = weather_station.get_humidity();
-			pressure = weather_station.get_pressure();
+			temperature = new_temperature;
+		}
+		void set_humidity(int new_humidity)
+		{
+			humidity = new_humidity;
+		}
+		void set_pressure(int new_pressure)
+		{
+			pressure = new_pressure;
 		}
 		void display_current_condition()
 		{
@@ -131,6 +102,54 @@ class WeatherData {
 		}
 };
 
+class WeatherStation {
+	private:
+		int temperature;
+		int humidity;
+		int pressure;
+		WeatherData weather_data;
+	public:
+		void set_temperature(int new_temperature)
+		{
+			temperature = new_temperature;
+		}
+		int get_temperature()
+		{
+			return temperature;
+		}
+		void set_humidity(int new_humidity)
+		{
+			humidity = new_humidity;
+		}
+		int get_humidity()
+		{
+			return humidity;
+		}
+		void set_pressure(int new_pressure)
+		{
+			pressure = new_pressure;
+		}
+		int get_pressure()
+		{
+			return pressure;
+		}
+		void set_weather_data(WeatherData new_weather_data)
+		{
+			weather_data = new_weather_data;
+		}
+		void push_weather_data()
+		{
+			weather_data.set_temperature(temperature);
+			weather_data.set_humidity(humidity);
+			weather_data.set_pressure(pressure);
+			weather_data.display_weather_stats();
+			weather_data.display_current_condition();
+		}
+};
+
+WeatherStation weather_station;
+
+
 int main(void)
 {
 
@@ -140,15 +159,15 @@ int main(void)
 
 	WeatherData weather_data;
 
-	weather_data.pull_data();
 
 	CurrentCondition current_condition;
 	weather_data.set_current_codition(current_condition);
-	weather_data.display_current_condition();
 
 	WeatherStats weather_stats;
 	weather_data.set_weather_stats(weather_stats);
-	weather_data.display_weather_stats();
+
+	weather_station.set_weather_data(weather_data);
+	weather_station.push_weather_data();
 
 	cout<<"Program to implement Observer Design Pattern"<<endl;
 	return 0;
