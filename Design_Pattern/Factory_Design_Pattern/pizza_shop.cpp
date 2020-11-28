@@ -54,38 +54,52 @@ class VeggiePizza : public Pizza {
 
 };
 
-Pizza* order_pizza(char type[100])
-{
-	Pizza* pizza;
-	cout<<"Type "<<type<<endl;
-	if(!strcmp(type, "Cheese"))
-	{
-		CheesePizza cheesePizza;
-		pizza = &cheesePizza;
-	}
-	else if(!strcmp(type, "Veggie"))
-	{
-		VeggiePizza veggiePizza;
-		pizza = &veggiePizza;
-	}
-	else
-	{
-		cout<<"Invalid Type "<<type<<endl;
-		return NULL;
-	}
-	pizza->prepare();
-	pizza->bake();
-	pizza->cut();
-	pizza->box();
+class SimplePizzaFactory {
+	public:
+		Pizza* pizza ;
+		Pizza* create_pizza(char type[100])
+		{
+			cout<<"Type "<<type<<endl;
+			if(!strcmp(type, "Cheese"))
+			{
+				CheesePizza cheesePizza;
+				pizza = &cheesePizza;
+			}
+			else if(!strcmp(type, "Veggie"))
+			{
+				VeggiePizza veggiePizza;
+				pizza = &veggiePizza;
+			}
+			return pizza;
+		}
+};
 
-	return pizza;
-}
+class PizzaStore {
+	public:
+		SimplePizzaFactory pizzaFactory;
+		void set_factory(SimplePizzaFactory new_factory)
+		{
+			this->pizzaFactory = new_factory;
+		}
+		void order_pizza(char type[100])
+		{
+			Pizza* pizza = pizzaFactory.create_pizza(type);
+			pizza->prepare();
+			pizza->bake();
+			pizza->cut();
+			pizza->box();
+		}
+};
 
 int main(void)
 {
-	Pizza* cheese_pizza = order_pizza("Cheese");
+	PizzaStore store;
+	SimplePizzaFactory pizzaFactory;
+	store.set_factory(pizzaFactory);
 	cout<<endl<<"Pizza Order"<<endl;
-	Pizza* veggie_pizza = order_pizza("Veggie");
+	store.order_pizza("Cheese");
+	cout<<endl<<"Pizza Order"<<endl;
+	store.order_pizza("Veggie");
 
 	cout<<endl<<"Program to Implement Pizza Shop "<<endl;
 	return 0;
