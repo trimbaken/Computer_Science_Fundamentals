@@ -7,10 +7,6 @@ using namespace std;
 class Beverage {
 	private:
 		char description[100];
-		int milk;
-		int soy;
-		int mocha;
-		int whip;
 	public:
 		void set_description(char* new_description)
 		{
@@ -27,76 +23,125 @@ class Beverage {
 		{
 			cout<<endl<<"Beverage Description: "<<endl<<description<<endl;
 		}
+		virtual int cost()=0;
 
-		int has_milk()
-		{
-			if(milk == 1)
-				return 1;
-			else
-				return 0;
-		}
-		void set_milk()
-		{
-			milk =1;
-		}
-		int has_soy()
-		{
-			if(soy ==1)
-				return 1;
-			else
-				return 0;
-		}
-		void set_soy()
-		{
-			soy =1;
-		}
-		int has_mocha()
-		{
-			if(mocha ==1)
-				return 1;
-			else
-				return 0;
-		}
-		void set_mocha()
-		{
-			mocha =1;
-		}
-		int cost(){
-			int cost = 0;
-			if(has_milk())
-				cost = cost + 10;
-			if(has_soy())
-				cost = cost + 5;
-			if(has_mocha())
-				cost = cost + 15;
-			return cost;
-		}
 };
 
 class HouseBlend : public Beverage {
 	public:
-		void cost()
+		int cost()
 		{
-			int cost = Beverage::cost() + 10;
+			int cost = 10;
 			cout<<"Cost of HouseBlend Coffee is "<<cost<<"$"<<endl;
+			return cost;
 		}
 };
 
 class DarkRoast : public Beverage {
 	public:
-		void cost()
+		int cost()
 		{
-			int cost = Beverage::cost() + 15;
+			int cost = 15;
 			cout<<"Cost of DarkRoast Coffee is "<<cost<<"$"<<endl;
+			return cost;
 		}
 };
 
 class Expresso : public Beverage {
 	public:
-		void cost()
+		int cost()
 		{
-			int cost = Beverage::cost() + 20;
+			int cost = 20;
 			cout<<"Cost of Expresso Coffee is "<<cost<<"$"<<endl;
+			return cost;
+		}
+};
+
+class IngredientDecorator : public Beverage {
+	public:
+		void get_description() {
+			cout<<"Ingredient Description"<<endl;
+		}
+};
+
+class Milk : public IngredientDecorator {
+	private:
+		Beverage* wrappedBeverage;
+	public:
+		int cost()
+		{
+			int cost = wrappedBeverage->cost() + 10;
+			cout<<wrappedBeverage->cost()<<endl;
+			cout<<endl<<"Milk Cost"<< cost<<endl;
+			return cost;
+		}
+		void get_description()
+		{
+			cout<<"Milk"<<endl;
+		}
+		void set_beverage(Beverage* new_beverage)
+		{
+			wrappedBeverage = new_beverage;
+		}
+};
+
+class Mocha : public IngredientDecorator {
+	private:
+		Beverage* wrappedBeverage;
+	public:
+		int cost()
+		{
+			int cost = wrappedBeverage->cost() + 15;
+			cout<<endl<<"Mocha Cost"<< cost<<endl;
+			return cost;
+		}
+		void get_description()
+		{
+			cout<<"Mocha"<<endl;
+		}
+		void set_beverage(Beverage* new_beverage)
+		{
+			wrappedBeverage = new_beverage;
+		}
+};
+
+class Soy : public IngredientDecorator {
+	private:
+		Beverage* wrappedBeverage;
+	public:
+		int cost()
+		{
+			int cost = wrappedBeverage->cost() + 20;
+			cout<<endl<<"Soy Cost"<< cost<<endl;
+			return cost;
+		}
+		void get_description()
+		{
+			cout<<"Soy"<<endl;
+		}
+		void set_beverage(Beverage* new_beverage)
+		{
+			wrappedBeverage = new_beverage;
+		}
+};
+
+class Whip : public IngredientDecorator {
+	private:
+		Beverage* wrappedBeverage;
+	public:
+		int cost()
+		{
+			int cost = wrappedBeverage->cost() + 25;
+			cout<<endl<<"Whipe Cost"<< cost<<endl;
+			return cost;
+		}
+		void get_description()
+		{
+			cout<<"Whip"<<endl;
+		}
+		void set_beverage(Beverage* new_beverage)
+		{
+			wrappedBeverage = new_beverage;
 		}
 };
 
@@ -107,26 +152,37 @@ int main(void)
 	HouseBlend house_blend;
 	char description[100] = "House Blend Coffee contain coffe + milk";
 	house_blend.set_description(description);
-	house_blend.set_milk();
-	house_blend.set_soy();
-	house_blend.set_mocha();
 	house_blend.get_description();
-	house_blend.cost();
+	Milk milk;
+	milk.set_beverage(&house_blend);
+	milk.cost();
+	Mocha mocha;
+	mocha.set_beverage(&milk);
+	Whip whip;
+	whip.set_beverage(&mocha);
+	int cost = whip.cost();
+	cout<<"Cost of House Blen with Milk + Mocha + Whip "<<cost<<endl;
+
 
 	DarkRoast dark_roast;
 	char dark_roast_description[100] = "Dark Roast Coffee contain coffe + milk + Chocolate";
 	dark_roast.set_description(dark_roast_description);
-	dark_roast.set_milk();
-	dark_roast.set_soy();
 	dark_roast.get_description();
-	dark_roast.cost();
+	milk.set_beverage(&dark_roast);
+	Soy soy;
+	soy.set_beverage(&milk);
+	cost = soy.cost();
+	cout<<"Cost of Dark Roast with Milk and Soy "<<cost<<endl;
 
 	Expresso expresso;
 	char expresso_description[100] = "Expresso Coffee contain coffe + milk + Sugar";
 	expresso.set_description(expresso_description);
-	expresso.set_mocha();
 	expresso.get_description();
-	expresso.cost();
+	whip.set_beverage(&expresso);
+	milk.set_beverage(&whip);
+	cost = whip.cost();
+	cout<<"Cost of Expresso with Whip & Milk "<<cost<<endl;
+
 
 	cout<<endl<<"Program to implement Starbuzz Coffee Shop operations"<<endl;
 	return 0;
