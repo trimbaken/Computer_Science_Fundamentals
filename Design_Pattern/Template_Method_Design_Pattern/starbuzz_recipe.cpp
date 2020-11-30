@@ -5,7 +5,7 @@ using namespace std;
 
 class CoffeineBeverage {
 	public:
-		void prepare()
+		virtual void prepare() final // Method can't be overwrite by derived class
 		{
 			boil_water();
 			brew();
