@@ -2,6 +2,7 @@
 #include<iostream>
 #include<string.h>
 #include <list>
+#include <iterator>
 
 using namespace std;
 
@@ -64,8 +65,8 @@ class DinerMenu {
 		void initialize()
 		{
 			count =0;
-			addItem("K&B’s Pancake Breakfast","Pancnkes with scrambled eggs, and toast",1,3);
-			addItem("egular Pancake Breakfast","Pancakes with fried eggs, sausage, and toast",0,4);
+			addItem("Vegetarian BLT","(Fakin’) Bacon with lettuce & tomato on whole wheat",1,3);
+			addItem("Soup of the day","Soup of the day, with a side of potato salad",0,4);
 		}
 		void addItem(char new_name[100], char new_description[100], int new_vegiterian, int new_price)
 		{
@@ -77,7 +78,83 @@ class DinerMenu {
 		{
 			return &menuItems[0];
 		}
+		int get_size()
+		{
+			return count;
+		}
 };
+
+class Iterator {
+	public:
+		virtual int has_next() =0;
+		virtual MenuItem next() =0;
+};
+
+class PancakeHouseMenuIterator : public Iterator {
+	public:
+		list<MenuItem>menuItems;
+		PancakeHouseMenu pancakeHouseMenu;
+		int count;
+		void initialize()
+		{
+			pancakeHouseMenu.initialize();
+			menuItems = pancakeHouseMenu.getMenuItems();
+			count =0;
+		}
+		int has_next()
+		{
+			if(count < menuItems.size())
+				return 1;
+			else
+				return 0;
+		}
+		MenuItem next()
+		{
+			list<MenuItem> :: iterator it;
+			int i =0;
+			for(it = menuItems.begin(); it != menuItems.end(); ++it, ++i)
+			{
+				if(i == count)
+				{
+					count++;
+					return *it;
+				}
+			}
+		}
+};
+
+class DinerMenuIterator : public Iterator {
+	public:
+		MenuItem* menuItems;
+		DinerMenu dinerMenu;
+		int count;
+		void initialize()
+		{
+			dinerMenu.initialize();
+			menuItems = dinerMenu.getMenuItems();
+			count =0;
+		}
+		int has_next()
+		{
+			if(count < dinerMenu.get_size())
+				return 1;
+			else
+				return 0;
+		}
+		MenuItem next()
+		{
+			int i =0;
+			for(i=0; i<dinerMenu.get_size(); ++i)
+			{
+				if(i == count)
+				{
+					count++;
+					return menuItems[i];
+				}
+			}
+		}
+};
+
 
 
 int main(void)
@@ -98,6 +175,22 @@ int main(void)
 	dinerMenu.initialize();
 	MenuItem* diner_list = dinerMenu.getMenuItems();
 	diner_list[1].get_name();
+
+	Iterator* iterator;
+	PancakeHouseMenuIterator pancakeHouseMenuIterator;
+	pancakeHouseMenuIterator.initialize();
+	iterator = &pancakeHouseMenuIterator;
+
+	tempItem = iterator->next();
+	tempItem.get_name();
+
+	DinerMenuIterator dinerMenuIterator;
+	dinerMenuIterator.initialize();
+	iterator = &dinerMenuIterator;
+
+	tempItem = iterator->next();
+	tempItem.get_name();
+	tempItem.get_description();
 	cout<<"Program to implement Iterator Design Pattern "<<endl;
 	return 0;
 }
