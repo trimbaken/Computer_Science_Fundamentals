@@ -29,7 +29,6 @@ adjacency_list_node_t* create_adjacency_list_node(int adjacency_node_value, int 
 	if(adjacency_list_node_count >= MAX_EDGES)
 		return NULL;
 	adjacency_list_node_count++;
-	printf("create adjacency_list_node");
 	adjacency_list_node[adjacency_list_node_count].adjacency_node_value = adjacency_node_value;
 	adjacency_list_node[adjacency_list_node_count].weight = weight;
 	adjacency_list_node[adjacency_list_node_count].next = NULL;
@@ -48,11 +47,11 @@ graph_node_t* create_graph_node(int graph_node_value)
 	return &graph_node[graph_node_count];
 }
 
-void insert_edge(int start_node, int end_node, int weight)
+int insert_edge(int start_node, int end_node, int weight)
 {
-	printf("\n Insert Edge start_node : %d, end_node : %d, weight : %d \n", start_node, end_node, weight);
+//	printf("\n Insert Edge start_node : %d, end_node : %d, weight : %d \n", start_node, end_node, weight);
 
-	if(graph_node[start_node].node_value == -1)
+	if(graph_node[start_node].node_value == -1 || graph_node[start_node].adjacency_list == NULL)
 	{
 		graph_node[start_node].node_value = start_node;
 		graph_node[start_node].adjacency_list = create_adjacency_list_node(end_node, weight);
@@ -65,7 +64,7 @@ void insert_edge(int start_node, int end_node, int weight)
 			if(list_node->adjacency_node_value == end_node)
 			{
 				printf("Edge present ");
-				return;
+				return 0;
 			}
 
 			list_node = list_node->next;
@@ -73,10 +72,11 @@ void insert_edge(int start_node, int end_node, int weight)
 		if(list_node->adjacency_node_value == end_node)
 		{
 			printf("Edge present ");
-			return;
+			return 0;
 		}
 		list_node->next = create_adjacency_list_node(end_node, weight);
 	}
+	return 1;
 }
 
 int serach_node(int node_index)
@@ -87,6 +87,93 @@ int serach_node(int node_index)
 	}
 	return 0;
 }
+
+int delete_node(int node_index)
+{
+	if(!serach_node(node_index))
+	{
+		printf("\n Node [%d] is not present  \n", node_index);
+		return 0;
+	}
+	else
+	{
+		graph_node[node_index].node_value = -1;
+		graph_node[node_index].adjacency_list = NULL;
+	}
+	return 1;
+}
+
+int search_edge(int start_node, int end_node, int weight)
+{
+	adjacency_list_node_t* list_node;
+	if(!serach_node(start_node))
+	{
+		printf("\nNode not present \n");
+		return 0;
+	}
+	list_node = graph_node[start_node].adjacency_list;
+	while(list_node != NULL)
+	{
+		if(list_node->adjacency_node_value == end_node && list_node->weight == weight)
+		{
+			return 1;
+		}
+		list_node = list_node->next;
+	}
+	return 0;
+}
+
+int delete_edge(int start_node, int end_node, int weight)
+{
+	adjacency_list_node_t* list_node;
+	if(!serach_node(start_node))
+	{
+		printf("\nNode not present \n");
+		return 0;
+	}
+	list_node = graph_node[start_node].adjacency_list;
+	// Delete first edge
+	if(list_node->adjacency_node_value == end_node && list_node->weight == weight)
+	{
+		graph_node[start_node].adjacency_list = list_node->next;
+		return 1;
+	}
+	adjacency_list_node_t* previous_node = list_node;
+	list_node = list_node->next;
+	while(list_node != NULL)
+	{
+		if(list_node->adjacency_node_value == end_node && list_node->weight == weight)
+		{
+			previous_node->next = list_node->next;
+			return 1;
+		}
+		previous_node = list_node;
+		list_node = list_node->next;
+	}
+	return 0;
+}
+
+int modify_edge(int start_node, int end_node, int weight, int new_weight)
+{
+	adjacency_list_node_t* list_node;
+	if(!serach_node(start_node))
+	{
+		printf("\nNode not present \n");
+		return 0;
+	}
+	list_node = graph_node[start_node].adjacency_list;
+	while(list_node != NULL)
+	{
+		if(list_node->adjacency_node_value == end_node && list_node->weight == weight)
+		{
+			list_node->weight = new_weight;
+			return 1;
+		}
+		list_node = list_node->next;
+	}
+	return 0;
+}
+
 
 void init()
 {
@@ -108,18 +195,19 @@ void init()
 	}
 	while(1)
 	{
-		printf("\n Select operation \n");
+		printf("\n\nSelect operation: \n");
 		printf("1 Insert Edge: \n");
 		printf("2 Search Node: \n");
 		printf("3 Delete Node: \n");
-		printf("4 Delete Edge: \n");
-		printf("5 Modify Edge: \n");
-		printf("6 Print All Element: \n");
+		printf("4 Search Edge: \n");
+		printf("5 Delete Edge: \n");
+		printf("6 Modify Edge: \n");
+		printf("7 Print All Element: \n");
 		printf("\n0 Exit: \n");
 
-		printf("\n Enter Operation Number:\n");
+		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 6)
+		if(operation < 0 || operation > 7)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -133,7 +221,14 @@ void init()
 					printf("\n Insert Edge  \n");
 					printf("Enter Start Node, End Node, Weight of Edge \n" );
 					scanf("%d %d %d", &start_node, &end_node, &weight);
-					insert_edge(start_node, end_node, weight);
+					if(!insert_edge(start_node, end_node, weight))
+					{
+						printf("\nFail to create edge\n");
+					}
+					else
+					{
+						printf("\nEdge is created\n");
+					}
 					break;
 				}
 			case 2:
@@ -156,23 +251,67 @@ void init()
 					printf("\n Delete Node  \n");
 					printf("\n Enter Node Index  \n");
 					scanf("%d", &node_index);
+					if(!delete_node(node_index))
+					{
+						printf("\nFail to delete node [%d]  \n", node_index);
+					}
+					else
+					{
+						printf("\nDeleted node [%d]\n", node_index);
+					}
+
 					break;
 				}
+
 			case 4:
 				{
-					printf("\n Delete Edge  \n");
+					printf("\n Search Edge  \n");
 					printf("Enter Start Node, End Node, Weight of Edge \n" );
 					scanf("%d %d %d", &start_node, &end_node, &weight);
+					if(!search_edge(start_node, end_node, weight))
+					{
+						printf("\n Edge [%d][%d][%d] is not present  \n", start_node, end_node, weight);
+					}
+					else
+					{
+						printf("\n Edge [%d][%d][%d] is present  \n", start_node, end_node, weight);
+					}
 					break;
 				}
 			case 5:
 				{
-					printf("\n Modify Edge \n");
-					printf("Enter Start Node, End Node, Weight of Edge, New Weight \n" );
-					scanf("%d %d %d %d", &start_node, &end_node, &weight, &new_weight);
+					printf("\n Delete Edge  \n");
+					printf("Enter Start Node, End Node, Weight of Edge \n" );
+					scanf("%d %d %d", &start_node, &end_node, &weight);
+					if(!delete_edge(start_node, end_node, weight))
+					{
+						printf("\nFail to delete edge [%d][%d][%d]  \n", start_node, end_node, weight);
+					}
+					else
+					{
+						printf("\nDeleted edge [%d][%d][%d]  \n", start_node, end_node, weight);
+					}
+
 					break;
 				}
 			case 6:
+				{
+					printf("\n Modify Edge \n");
+					printf("Enter Start Node, End Node, Weight of Edge, New Weight \n" );
+					scanf("%d %d %d %d", &start_node, &end_node, &weight, &new_weight);
+					if(!modify_edge(start_node, end_node, weight, new_weight))
+					{
+						printf("\nFail to modify edge [%d][%d][%d]  \n", start_node, end_node, weight);
+					}
+					else
+					{
+						printf("\nModified edge [%d][%d][%d]  \n", start_node, end_node, weight);
+					}
+
+
+					break;
+				}
+			case 7:
 				{
 					printf("\n Print All Graph Nodes  \n");
 					break;
