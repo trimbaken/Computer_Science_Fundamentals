@@ -23,14 +23,24 @@ typedef struct stack_s
 	int stack_node_value;
 }stack_t;
 
+typedef struct queue_s
+{
+	int queue_node_value;
+	struct queue_s* next;
+	struct queue_s* prev;
+}queue_t;
 
 graph_node_t graph_node[MAX_NODES];
 adjacency_list_node_t adjacency_list_node[MAX_EDGES];
 stack_t stack_dfs[MAX_EDGES];
+queue_t queue_bfs[MAX_EDGES];
 
 int graph_node_count = 0;
 int adjacency_list_node_count = -1;
 int stack_dfs_top =0;
+int queue_bfs_count =0;
+queue_t* queue_bfs_front = NULL;
+queue_t* queue_bfs_end = NULL;
 
 
 adjacency_list_node_t* create_adjacency_list_node(int adjacency_node_value, int weight)
@@ -260,6 +270,7 @@ int dfs(int start_node)
 	int pop_current_node =0;
 	int current_node =0;
 	adjacency_list_node_t* list_node = NULL;
+	stack_dfs_top = 0;
 	if(!serach_node(start_node))
 	{
 		printf("\n Node not present  \n");
@@ -306,6 +317,118 @@ int dfs(int start_node)
 	return 1;
 }
 
+int is_queue_bfs_empty()
+{
+	if(queue_bfs_front == NULL)
+	{
+		printf("\nBFS Queue is empty\n");
+		return 1;
+	}
+	return 0;
+}
+
+queue_t* create_queue_bfs_node(int value)
+{
+	queue_bfs[queue_bfs_count].queue_node_value = value;
+	queue_bfs[queue_bfs_count].next = NULL;
+	queue_bfs[queue_bfs_count].prev = NULL;
+
+	return &queue_bfs[queue_bfs_count++];
+}
+
+int queue_bfs_push(int value)
+{
+	if(queue_bfs_count >= MAX_NODES)
+	{
+		printf("\nQueue size is full\n");
+		return 0;
+	}
+	if(queue_bfs_front == NULL)
+	{
+		queue_bfs_front = queue_bfs_end = create_queue_bfs_node(value);
+	}
+	else
+	{
+		queue_bfs_end->next = create_queue_bfs_node(value);
+		queue_bfs_end = queue_bfs_end->next;
+	}
+	printf("\n BFS Traverser Node [%d]\n", value);
+	return 1;
+}
+
+int queue_bfs_pop()
+{
+	int queue_element;
+	if(is_queue_bfs_empty())
+	{
+		return -1;
+	}
+	queue_element = queue_bfs_front->queue_node_value;
+	if(queue_bfs_front == queue_bfs_end)
+	{
+		queue_bfs_front = queue_bfs_end = NULL;
+		return queue_element;
+	}
+	queue_bfs_front = queue_bfs_front->next;
+	return queue_element;
+}
+
+int get_queue_bfs_front_element()
+{
+	if(is_queue_bfs_empty())
+	{
+		return -1;
+	}
+	return queue_bfs_front->queue_node_value;
+}
+
+int bfs(int start_node)
+{
+	int visited[MAX_NODES];
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	queue_bfs_count = 0;
+	queue_bfs_front = NULL;
+	queue_bfs_end = NULL;
+	adjacency_list_node_t* list_node = NULL;
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present  \n");
+		return 0;
+	}
+	for(i =0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+	}
+	if(queue_bfs_push(start_node) == 0)
+	{
+		printf("\n Fail to push into queue\n");
+		return 0;
+	}
+	visited[start_node] =1;
+	while(!is_queue_bfs_empty())
+	{
+		current_node = queue_bfs_pop();
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if(visited[list_node->adjacency_node_value] == 0)
+			{
+				if(queue_bfs_push(list_node->adjacency_node_value) == 0)
+				{
+					printf("\nFail to push into queue\n");
+					return 0;
+				}
+				visited[list_node->adjacency_node_value] =1;
+			}
+			list_node = list_node->next;
+		}
+	}
+	return 1;
+}
+
+
 void init()
 {
 	int operation =0;
@@ -336,11 +459,12 @@ void init()
 		printf("7 Print All Nodes: \n");
 		printf("8 Create Graph: \n");
 		printf("9 Graph Traversal - DFS: \n");
+		printf("10 Graph Traversal - BFS: \n");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 9)
+		if(operation < 0 || operation > 10)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -464,6 +588,17 @@ void init()
 					if( !dfs(start_node))
 					{
 						printf("\nGraph traversal using DFS failed\n");
+					}
+					break;
+				}
+			case 10:
+				{
+					printf("\n Graph Traversal - BFS  \n");
+					printf("Enter start node :\n");
+					scanf("%d", &start_node);
+					if(!bfs(start_node))
+					{
+						printf("\nGraph traversal using BFS failed\n");
 					}
 					break;
 				}
