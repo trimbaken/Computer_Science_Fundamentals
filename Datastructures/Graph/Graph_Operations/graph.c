@@ -57,7 +57,7 @@ adjacency_list_node_t* create_adjacency_list_node(int adjacency_node_value, int 
 
 int insert_edge(int start_node, int end_node, int weight)
 {
-	printf("\n Insert Edge start_node : %d, end_node : %d, weight : %d \n", start_node, end_node, weight);
+	printf("\n Insert Edge start_node : %d, end_node : %d, weight : %d", start_node, end_node, weight);
 
 	if(graph_node[start_node].node_value == -1 || graph_node[start_node].adjacency_list == NULL)
 	{
@@ -230,26 +230,30 @@ void create_graph()
 
 int is_stack_dfs_empty()
 {
-	if(stack_dfs_top == 0)
+	if(stack_dfs_top == -1)
 		return 1;
 	return 0;
 }
 
 int stack_dfs_push(int graph_node)
 {
-	printf("\n DFS Traverser Node [%d]\n", graph_node);
-	stack_dfs[stack_dfs_top++].stack_node_value = graph_node;
+	printf("\n DFS Traverser Node [%d]", graph_node);
+	stack_dfs_top++;
+	stack_dfs[stack_dfs_top].stack_node_value = graph_node;
 	return 1;
 }
 
 int stack_dfs_pop()
 {
+	int ret =-1;
 	if(is_stack_dfs_empty())
 	{
 		printf("\nDFS Stack is Empty \n");
-		return -1;
+		return ret;
 	}
-	return (stack_dfs[stack_dfs_top--].stack_node_value);
+	ret = stack_dfs[stack_dfs_top].stack_node_value;
+	stack_dfs_top--;
+	return ret;
 }
 
 int get_stack_dfs_top_node()
@@ -270,7 +274,7 @@ int dfs(int start_node)
 	int pop_current_node =0;
 	int current_node =0;
 	adjacency_list_node_t* list_node = NULL;
-	stack_dfs_top = 0;
+	stack_dfs_top = -1;
 	if(!serach_node(start_node))
 	{
 		printf("\n Node not present  \n");
@@ -302,6 +306,7 @@ int dfs(int start_node)
 				}
 				pop_current_node = 0;
 				visited[list_node->adjacency_node_value] =1;
+				break;
 			}
 			list_node = list_node->next;
 		}
@@ -352,7 +357,7 @@ int queue_bfs_push(int value)
 		queue_bfs_end->next = create_queue_bfs_node(value);
 		queue_bfs_end = queue_bfs_end->next;
 	}
-	printf("\n BFS Traverser Node [%d]\n", value);
+	printf("\n BFS Traverser Node [%d]", value);
 	return 1;
 }
 
