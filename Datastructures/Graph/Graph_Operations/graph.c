@@ -4,6 +4,7 @@
 
 #define MAX_NODES 1000
 #define MAX_EDGES 499500
+#define INT_MAX 1000000
 
 typedef struct adjacency_list_node_s
 {
@@ -241,6 +242,7 @@ void create_graph()
 	insert_bi_directional_edge(6, 8, 6);
 	insert_bi_directional_edge(6, 7, 1);
 	insert_bi_directional_edge(7, 8, 7);
+	insert_bi_directional_edge(5, 4, 10);
 }
 
 int is_stack_dfs_empty()
@@ -629,6 +631,65 @@ int find_connected_components()
 	return 1;
 }
 
+int find_shortest_path(int start_node)
+{
+	int visited[MAX_NODES];
+	int distance[MAX_NODES];
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	queue_bfs_count = 0;
+	queue_bfs_front = NULL;
+	queue_bfs_end = NULL;
+	adjacency_list_node_t* list_node = NULL;
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present  \n");
+		return 0;
+	}
+	for(i =0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+		distance[i] = INT_MAX;
+	}
+	if(queue_bfs_push(start_node) == 0)
+	{
+		printf("\n Fail to push into queue\n");
+		return 0;
+	}
+	visited[start_node] =1;
+	distance[start_node] = 0;
+	while(!is_queue_bfs_empty())
+	{
+		current_node = queue_bfs_pop();
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if(distance[list_node->adjacency_node_value] > distance[current_node] + list_node->weight)
+			{
+				distance[list_node->adjacency_node_value] = distance[current_node] + list_node->weight;
+			}
+			if(visited[list_node->adjacency_node_value] == 0)
+			{
+				if(queue_bfs_push(list_node->adjacency_node_value) == 0)
+				{
+					printf("\nFail to push into queue\n");
+					return 0;
+				}
+				visited[list_node->adjacency_node_value] =1;
+			}
+			list_node = list_node->next;
+		}
+	}
+	i =0;
+	while(distance[i] != INT_MAX)
+	{
+		printf("\n Source Node [%d], Destination Node [%d], Shortest Distance [%d]", start_node, i, distance[i]);
+		i++;
+	}
+	return 1;
+}
+
 void init()
 {
 	int operation =0;
@@ -657,11 +718,12 @@ void init()
 		printf("12 Find Cycle In Graph: \n");
 		printf("13 Create Graph with Connected Component\n");
 		printf("14 Find Connected Component\n");
+		printf("15 Shortest Path - Source to all node\n");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 14)
+		if(operation < 0 || operation > 15)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -837,6 +899,17 @@ void init()
 					if(!find_connected_components())
 					{
 						printf("\nFail to find connected components\n");
+					}
+					break;
+				}
+			case 15:
+				{
+					printf("\nShortest Path - Source to all nodes \n");
+					printf("\nEnter start node : ");
+					scanf("%d",&start_node);
+					if(!find_shortest_path(start_node))
+					{
+						printf("\nFail to find shortest path\n");
 					}
 					break;
 				}
