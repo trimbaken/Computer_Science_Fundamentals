@@ -42,6 +42,20 @@ int queue_bfs_count =0;
 queue_t* queue_bfs_front = NULL;
 queue_t* queue_bfs_end = NULL;
 
+void initialize_graph()
+{
+	int i =0;
+	graph_node_count =0;
+	for(i =0; i<MAX_NODES; i++)
+	{
+		graph_node[i].node_value = -1;
+	}
+	for(i=0; i<MAX_EDGES; i++)
+	{
+		adjacency_list_node[i].adjacency_node_value = -1;
+	}
+
+}
 
 adjacency_list_node_t* create_adjacency_list_node(int adjacency_node_value, int weight)
 {
@@ -213,6 +227,7 @@ void insert_bi_directional_edge(int start_node, int end_node, int weight)
 
 void create_graph()
 {
+	initialize_graph();
 	insert_bi_directional_edge(0, 1, 4);
 	insert_bi_directional_edge(0, 7, 8);
 	insert_bi_directional_edge(1, 2, 8);
@@ -433,7 +448,100 @@ int bfs(int start_node)
 	return 1;
 }
 
+void create_directed_cyclic_graph()
+{
+	initialize_graph();
+	if(!insert_edge(0, 1, 4))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(1, 2, 5))
+        {
+                printf("\nFail to insert edge\n");
+        }
+	if(!insert_edge(2, 3, 2))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(3, 0, 3))
+        {
+                printf("\nFail to insert edge\n");
+        }
 
+}
+
+int is_node_present_in_dfs_stack(int node)
+{
+	int i =0;
+	for(i =0; i<= stack_dfs_top; i++)
+	{
+		if(stack_dfs[i].stack_node_value == node)
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int find_cycle_in_graph(int start_node)
+{
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present");
+		return -1;
+	}
+	int visited[MAX_NODES];
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	adjacency_list_node_t* list_node = NULL;
+	stack_dfs_top = -1;
+	for(i =0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+	}
+	if(stack_dfs_push(start_node) == -1)
+	{
+		printf("\n Fail to push into stack\n");
+		return -1;
+	}
+	visited[start_node] =1;
+	while(!is_stack_dfs_empty())
+	{
+		current_node = get_stack_dfs_top_node();
+		pop_current_node = 1;
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if(visited[list_node->adjacency_node_value] == 0)
+			{
+				if(stack_dfs_push(list_node->adjacency_node_value) == -1)
+				{
+					printf("\nFail to push into stack\n");
+					return -1;
+				}
+				pop_current_node = 0;
+				visited[list_node->adjacency_node_value] =1;
+				break;
+			}
+			else if (is_node_present_in_dfs_stack(list_node->adjacency_node_value))
+			{
+				return 1;
+			}
+			list_node = list_node->next;
+		}
+		if(pop_current_node)
+		{
+			if(stack_dfs_pop() == -1)
+			{
+				printf("\nFail to pop from stack\n");
+				return -1;
+			}
+		}
+	}
+	return 0;
+
+}
 void init()
 {
 	int operation =0;
@@ -444,14 +552,7 @@ void init()
 	int node_index =0;
 
 	int i =0;
-	for(i =0; i<MAX_NODES; i++)
-	{
-		graph_node[i].node_value = -1;
-	}
-	for(i=0; i<MAX_EDGES; i++)
-	{
-		adjacency_list_node[i].adjacency_node_value = -1;
-	}
+	initialize_graph();
 	while(1)
 	{
 		printf("\n\nSelect operation: \n");
@@ -465,11 +566,13 @@ void init()
 		printf("8 Create Graph: \n");
 		printf("9 Graph Traversal - DFS: \n");
 		printf("10 Graph Traversal - BFS: \n");
+		printf("11 Create Directed Cyclic Graph: \n");
+		printf("12 Find Cycle In Graph: \n");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 10)
+		if(operation < 0 || operation > 12)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -604,6 +707,32 @@ void init()
 					if(!bfs(start_node))
 					{
 						printf("\nGraph traversal using BFS failed\n");
+					}
+					break;
+				}
+			case 11:
+				{
+					printf("\n Create Directed Cyclic Graph  \n");
+					create_directed_cyclic_graph();
+					break;
+				}
+			case 12:
+				{
+					printf("\n Find Cycle In Graph  \n");
+					printf("Enter Start Node Index\n" );
+					scanf("%d", &start_node);
+					int ret = find_cycle_in_graph(start_node);
+					if(ret == 1)
+					{
+						printf("\n Cycle is present \n");
+					}
+					else if(ret == 0)
+					{
+						printf("\n Cycle is not present \n");
+					}
+					else
+					{
+						printf("\nFail to find cycle in graph\n");
 					}
 					break;
 				}
