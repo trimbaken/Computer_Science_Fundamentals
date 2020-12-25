@@ -542,6 +542,93 @@ int find_cycle_in_graph(int start_node)
 	return 0;
 
 }
+
+void create_graph_with_connected_components()
+{
+	initialize_graph();
+	insert_bi_directional_edge(0, 1, 4);
+	insert_bi_directional_edge(1, 2, 8);
+	insert_bi_directional_edge(3, 4, 1);
+}
+
+int connected_component_dfs(int start_node, int visited[MAX_NODES])
+{
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	adjacency_list_node_t* list_node = NULL;
+	stack_dfs_top = -1;
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present  \n");
+		return 0;
+	}
+	if(stack_dfs_push(start_node) == -1)
+	{
+		printf("\n Fail to push into stack\n");
+		return 0;
+	}
+	visited[start_node] =1;
+	while(!is_stack_dfs_empty())
+	{
+		current_node = get_stack_dfs_top_node();
+		pop_current_node = 1;
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if(visited[list_node->adjacency_node_value] == 0)
+			{
+				if(stack_dfs_push(list_node->adjacency_node_value) == -1)
+				{
+					printf("\nFail to push into stack\n");
+					return 0;
+				}
+				pop_current_node = 0;
+				visited[list_node->adjacency_node_value] =1;
+				break;
+			}
+			list_node = list_node->next;
+		}
+		if(pop_current_node)
+		{
+			if(stack_dfs_pop() == -1)
+			{
+				printf("\nFail to pop from stack\n");
+				return 0;
+			}
+		}
+	}
+	return 1;
+
+}
+
+int find_connected_components()
+{
+	int number_of_nodes = 0;
+	int i =0;
+	int visited[MAX_NODES];
+	for(i=0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+	}
+	for(i =0; (i<MAX_NODES) && (number_of_nodes < graph_node_count); i++)
+	{
+		if(graph_node[i].node_value != -1)
+		{
+			number_of_nodes++;
+			if(visited[graph_node[i].node_value] == 0)
+			{
+				printf("\nConnected Component :\n");
+				if(!connected_component_dfs(graph_node[i].node_value, visited))
+				{
+					printf("\nfail to find connected component\n");
+				}
+			}
+		}
+	}
+	return 1;
+}
+
 void init()
 {
 	int operation =0;
@@ -568,11 +655,13 @@ void init()
 		printf("10 Graph Traversal - BFS: \n");
 		printf("11 Create Directed Cyclic Graph: \n");
 		printf("12 Find Cycle In Graph: \n");
+		printf("13 Create Graph with Connected Component\n");
+		printf("14 Find Connected Component\n");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 12)
+		if(operation < 0 || operation > 14)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -733,6 +822,21 @@ void init()
 					else
 					{
 						printf("\nFail to find cycle in graph\n");
+					}
+					break;
+				}
+			case 13:
+				{
+					printf("\nCreate Graph with Connected Components\n");
+					create_graph_with_connected_components();
+					break;
+				}
+			case 14:
+				{
+					printf("\nFind Connected Components of Graph\n");
+					if(!find_connected_components())
+					{
+						printf("\nFail to find connected components\n");
 					}
 					break;
 				}
