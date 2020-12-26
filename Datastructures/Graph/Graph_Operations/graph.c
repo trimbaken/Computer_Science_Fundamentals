@@ -10,6 +10,7 @@ typedef struct adjacency_list_node_s
 {
         int adjacency_node_value;
 	int weight;
+	int is_active;
         struct adjacency_list_node_s* next;
 } adjacency_list_node_t;
 
@@ -66,6 +67,7 @@ adjacency_list_node_t* create_adjacency_list_node(int adjacency_node_value, int 
 	adjacency_list_node[adjacency_list_node_count].adjacency_node_value = adjacency_node_value;
 	adjacency_list_node[adjacency_list_node_count].weight = weight;
 	adjacency_list_node[adjacency_list_node_count].next = NULL;
+	adjacency_list_node[adjacency_list_node_count].is_active = 1;
 
 	return &adjacency_list_node[adjacency_list_node_count];
 }
@@ -553,6 +555,16 @@ void create_graph_with_connected_components()
 	insert_bi_directional_edge(3, 4, 1);
 }
 
+void create_graph_with_bridge()
+{
+	initialize_graph();
+	insert_bi_directional_edge(0, 1, 4);
+	insert_bi_directional_edge(1, 2, 8);
+	insert_bi_directional_edge(2, 0, 1);
+	insert_bi_directional_edge(1, 3, 5);
+}
+
+
 int connected_component_dfs(int start_node, int visited[MAX_NODES])
 {
 	int i =0;
@@ -690,6 +702,96 @@ int find_shortest_path(int start_node)
 	return 1;
 }
 
+int find_connected_nodes(int start_node, int end_node, int weight)
+{
+	int visited[MAX_NODES];
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	int connected_nodes =0;
+	adjacency_list_node_t* list_node = NULL;
+	stack_dfs_top = -1;
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present  \n");
+		return 0;
+	}
+	for(i =0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+	}
+	if(stack_dfs_push(start_node) == -1)
+	{
+		printf("\n Fail to push into stack\n");
+		return 0;
+	}
+	visited[start_node] =1;
+	connected_nodes++;
+	while(!is_stack_dfs_empty())
+	{
+		current_node = get_stack_dfs_top_node();
+		pop_current_node = 1;
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if(list_node->is_active ==1 && visited[list_node->adjacency_node_value] == 0)
+			{
+				if(stack_dfs_push(list_node->adjacency_node_value) == -1)
+				{
+					printf("\nFail to push into stack\n");
+					return 0;
+				}
+				pop_current_node = 0;
+				visited[list_node->adjacency_node_value] =1;
+				connected_nodes++;
+				break;
+			}
+			list_node = list_node->next;
+		}
+		if(pop_current_node)
+		{
+			if(stack_dfs_pop() == -1)
+			{
+				printf("\nFail to pop from stack\n");
+				return 0;
+			}
+		}
+	}
+	if(connected_nodes < graph_node_count)
+	{
+		printf("\nBridge is present [%d][%d][%d]\n", start_node, end_node, weight);
+	}
+	else
+	{
+		printf("\nBridge is not present\n");
+		return 0;
+	}
+	return 1;
+}
+
+void find_bridge()
+{
+	int number_of_nodes = 0;
+	int i =0;
+	adjacency_list_node_t* list_node;
+	adjacency_list_node_t* list_node_temp;
+	for(i =0; (i<MAX_NODES) && (number_of_nodes < graph_node_count); i++)
+	{
+		if(graph_node[i].node_value != -1)
+		{
+			list_node = graph_node[i].adjacency_list;
+			while(list_node != NULL)
+			{
+				list_node->is_active = 0;
+				find_connected_nodes(i, list_node->adjacency_node_value, list_node->weight);
+				list_node->is_active = 1;
+				list_node = list_node->next;
+				number_of_nodes++;
+			}
+		}
+	}
+}
+
 void init()
 {
 	int operation =0;
@@ -719,11 +821,13 @@ void init()
 		printf("13 Create Graph with Connected Component\n");
 		printf("14 Find Connected Component\n");
 		printf("15 Shortest Path - Source to all node\n");
+		printf("16 Create Graph with Bridge\n");
+		printf("17 Find Bridge in Graph\n");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 15)
+		if(operation < 0 || operation > 17)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -911,6 +1015,18 @@ void init()
 					{
 						printf("\nFail to find shortest path\n");
 					}
+					break;
+				}
+			case 16:
+				{
+					printf("\nCreate Graph with Bridge\n");
+					create_graph_with_bridge();
+					break;
+				}
+			case 17:
+				{
+					printf("\nFind Bridge in Graph\n");
+					find_bridge();
 					break;
 				}
 			case 0:
