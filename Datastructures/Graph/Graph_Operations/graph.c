@@ -32,10 +32,17 @@ typedef struct queue_s
 	struct queue_s* prev;
 }queue_t;
 
+typedef struct tree_s
+{
+	int graph_node_value;
+	struct tree_s* parent;
+}tree_t;
+
 graph_node_t graph_node[MAX_NODES];
 adjacency_list_node_t adjacency_list_node[MAX_EDGES];
 stack_t stack_dfs[MAX_EDGES];
 queue_t queue_bfs[MAX_EDGES];
+tree_t mst_tree[MAX_NODES];
 
 int graph_node_count = 0;
 int adjacency_list_node_count = -1;
@@ -792,6 +799,83 @@ void find_bridge()
 	}
 }
 
+void get_minimum_edge(int *src_node, int *dest_node, int *weight)
+{
+	int number_of_nodes = 0;
+	int i =0;
+	int min_weight = INT_MAX;
+	adjacency_list_node_t* list_node;
+	adjacency_list_node_t* min_list_node =NULL;
+	for(i =0; (i<MAX_NODES) && (number_of_nodes < graph_node_count); i++)
+	{
+		if(graph_node[i].node_value != -1)
+		{
+			list_node = graph_node[i].adjacency_list;
+			while(list_node != NULL)
+			{
+				if(list_node->is_active && min_weight > list_node->weight)
+				{
+					min_weight = list_node->weight;
+					*src_node = i;
+					*dest_node = list_node->adjacency_node_value;
+					*weight = list_node->weight;
+					min_list_node = list_node;
+				}
+				list_node = list_node->next;
+			}
+			number_of_nodes++;
+		}
+	}
+	min_list_node->is_active = 0;
+
+}
+
+int find_mst()
+{
+	int number_of_nodes = 0;
+	int i =0;
+	int src_node = -1;
+	int dest_node = -1;
+	int weight = -1;
+	adjacency_list_node_t* list_node;
+	tree_t* src_parent = NULL;
+	tree_t* dest_parent = NULL;
+
+	for(i =0; (i<MAX_NODES) && (number_of_nodes < graph_node_count); i++)
+	{
+		if(graph_node[i].node_value != -1)
+		{
+			mst_tree[i].graph_node_value = i;
+			mst_tree[i].parent = &mst_tree[i];
+			number_of_nodes++;
+		}
+	}
+	number_of_nodes =0;
+	for(i =0; (i<MAX_NODES) && (number_of_nodes < (graph_node_count-1)); i++)
+	{
+		get_minimum_edge(&src_node, &dest_node, &weight);
+//		printf("\n Min Edge [%d][%d][%d]\n", src_node, dest_node, weight);
+		src_parent = mst_tree[src_node].parent;
+		while(src_parent != src_parent->parent)
+		{
+			src_parent = src_parent->parent;
+		}
+		dest_parent = mst_tree[dest_node].parent;
+		while(dest_parent != dest_parent->parent)
+		{
+			dest_parent = dest_parent->parent;
+		}
+		if(src_parent != dest_parent)
+		{
+			dest_parent->parent = src_parent;
+			printf("\nMST Edge [%d][%d][%d]\n", src_node, dest_node, weight);
+			number_of_nodes++;
+		}
+//		printf("\n number_of_nodes [%d]\n", number_of_nodes);
+	}
+	return 1;
+}
+
 void init()
 {
 	int operation =0;
@@ -823,11 +907,12 @@ void init()
 		printf("15 Shortest Path - Source to all node\n");
 		printf("16 Create Graph with Bridge\n");
 		printf("17 Find Bridge in Graph\n");
+		printf("18 Find MST - Kruskal's Algo");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 17)
+		if(operation < 0 || operation > 18)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -1027,6 +1112,15 @@ void init()
 				{
 					printf("\nFind Bridge in Graph\n");
 					find_bridge();
+					break;
+				}
+			case 18:
+				{
+					printf("\nFind MST using Kruskal's Algorithm \n");
+					if(!find_mst())
+					{
+						printf("\nFail to find MST\n");
+					}
 					break;
 				}
 			case 0:
