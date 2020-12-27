@@ -23,6 +23,8 @@ typedef struct graph_node_s
 typedef struct stack_s
 {
 	int stack_node_value;
+	int src_node_value;
+	int weight;
 }stack_t;
 
 typedef struct queue_s
@@ -109,6 +111,7 @@ int insert_edge(int start_node, int end_node, int weight)
 		}
 		list_node->next = create_adjacency_list_node(end_node, weight);
 	}
+	graph_node[end_node].node_value = end_node;
 	return 1;
 }
 
@@ -263,7 +266,7 @@ int is_stack_dfs_empty()
 
 int stack_dfs_push(int graph_node)
 {
-	printf("\n DFS Traverser Node [%d]", graph_node);
+//	printf("\n DFS Traverser Node [%d]", graph_node);
 	stack_dfs_top++;
 	stack_dfs[stack_dfs_top].stack_node_value = graph_node;
 	return 1;
@@ -478,7 +481,6 @@ void create_directed_cyclic_graph()
         {
                 printf("\nFail to insert edge\n");
         }
-
 }
 
 int is_node_present_in_dfs_stack(int node)
@@ -876,6 +878,268 @@ int find_mst()
 	return 1;
 }
 
+int is_graph_connected()
+{
+	int visited[MAX_NODES];
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	int connected_nodes =0;
+	int start_node =0;
+	adjacency_list_node_t* list_node = NULL;
+	stack_dfs_top = -1;
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present  \n");
+		return -1;
+	}
+	for(i =0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+	}
+	if(stack_dfs_push(start_node) == -1)
+	{
+		printf("\n Fail to push into stack\n");
+		return -1;
+	}
+	visited[start_node] =1;
+	connected_nodes++;
+	while(!is_stack_dfs_empty())
+	{
+		current_node = get_stack_dfs_top_node();
+		pop_current_node = 1;
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if(list_node->is_active ==1 && visited[list_node->adjacency_node_value] == 0 && list_node->weight >0)
+			{
+				if(stack_dfs_push(list_node->adjacency_node_value) == -1)
+				{
+					printf("\nFail to push into stack\n");
+					return -1;
+				}
+				pop_current_node = 0;
+				visited[list_node->adjacency_node_value] =1;
+				connected_nodes++;
+				break;
+			}
+			list_node = list_node->next;
+		}
+		if(pop_current_node)
+		{
+			if(stack_dfs_pop() == -1)
+			{
+				printf("\nFail to pop from stack\n");
+				return -1;
+			}
+		}
+	}
+	if(connected_nodes < graph_node_count)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+void reduce_minimum_edge_weight(int weight)
+{
+	int number_of_nodes = 0;
+	int i =0;
+	int min_weight = INT_MAX;
+	adjacency_list_node_t* list_node;
+	for(i =0; (i<MAX_NODES) && (number_of_nodes < graph_node_count); i++)
+	{
+		if(graph_node[i].node_value != -1)
+		{
+			list_node = graph_node[i].adjacency_list;
+			while(list_node != NULL)
+			{
+				if(list_node->is_active)
+				{
+					list_node->weight -= weight;
+					if(list_node->weight <= 0)
+					{
+						list_node->is_active =0;
+					}
+				}
+				list_node = list_node->next;
+			}
+			number_of_nodes++;
+		}
+	}
+}
+
+void create_graph_for_max_flow()
+{
+	int i =0;
+	int count =0;
+	initialize_graph();
+	if(!insert_edge(0, 1, 16))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(0, 2, 13))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(1, 2, 10))
+        {
+                printf("\nFail to insert edge\n");
+        }
+	if(!insert_edge(1, 3, 12))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(2, 1, 4))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(2, 4, 14))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(3, 2, 9))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(3, 5, 20))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(4, 5, 4))
+        {
+                printf("\nFail to insert edge\n");
+        }
+        if(!insert_edge(4, 3, 7))
+        {
+                printf("\nFail to insert edge\n");
+        }
+	for(i =0; i<MAX_NODES; i++)
+	{
+		if(graph_node[i].node_value != -1)
+		{
+			count++;
+		}
+	}
+	graph_node_count = count;
+}
+
+
+int stack_dfs_push_(int graph_node, int src_node_value, int weight)
+{
+	printf("\n DFS Traverser Node [%d]", graph_node);
+	stack_dfs_top++;
+	stack_dfs[stack_dfs_top].stack_node_value = graph_node;
+	stack_dfs[stack_dfs_top].src_node_value = src_node_value;
+	stack_dfs[stack_dfs_top].weight = weight;
+
+	return 1;
+}
+
+int get_source_to_dest_path(int start_node, int end_node)
+{
+	int visited[MAX_NODES];
+	int i =0;
+	int pop_current_node =0;
+	int current_node =0;
+	adjacency_list_node_t* list_node = NULL;
+	stack_dfs_top = -1;
+	if(!serach_node(start_node))
+	{
+		printf("\n Node not present  \n");
+		return -1;
+	}
+	for(i =0; i<MAX_NODES; i++)
+	{
+		visited[i] = 0;
+	}
+	if(stack_dfs_push_(start_node, start_node, 0) == -1)
+	{
+		printf("\n Fail to push into stack\n");
+		return -1;
+	}
+	visited[start_node] =1;
+	int dest_found =0;
+	while(!is_stack_dfs_empty() && dest_found == 0)
+	{
+//		printf("\n dest_found [%d] \n", dest_found);
+		current_node = get_stack_dfs_top_node();
+		pop_current_node = 1;
+		list_node = graph_node[current_node].adjacency_list;
+		while(list_node != NULL)
+		{
+			if((list_node->weight > 0) && list_node->adjacency_node_value == end_node)
+			{
+				dest_found = 1;
+				pop_current_node = 0;
+				if(stack_dfs_push_(list_node->adjacency_node_value, current_node, list_node->weight) == -1)
+				{
+					printf("\nFail to push into stack\n");
+					return -1;
+				}
+				break;
+			}
+			if((list_node->weight >0) && visited[list_node->adjacency_node_value] == 0)
+			{
+				if(stack_dfs_push_(list_node->adjacency_node_value, current_node, list_node->weight) == -1)
+				{
+					printf("\nFail to push into stack\n");
+					return -1;
+				}
+				pop_current_node = 0;
+				visited[list_node->adjacency_node_value] =1;
+				break;
+			}
+			list_node = list_node->next;
+		}
+		if(pop_current_node)
+		{
+			if(stack_dfs_pop() == -1)
+			{
+				printf("\nFail to pop from stack\n");
+				return -1;
+			}
+		}
+	}
+	int min_weight =INT_MAX;
+	if(dest_found)
+	{
+		for(i =1; i<=stack_dfs_top; i++)
+		{
+			if(min_weight > stack_dfs[i].weight)
+			{
+				min_weight = stack_dfs[i].weight;
+			}
+			printf("\nEdge before Removing Min weight [%d][%d][%d]\n", stack_dfs[i].src_node_value, stack_dfs[i].stack_node_value, stack_dfs[i].weight);
+		}
+		printf("\n min_weight [%d], stack_dfs_top [%d]\n", min_weight, stack_dfs_top);
+		for(i =1; i<=stack_dfs_top; i++)
+		{
+			modify_edge(stack_dfs[i].src_node_value, stack_dfs[i].stack_node_value, stack_dfs[i].weight, (stack_dfs[i].weight - min_weight));
+		}
+	}
+	else
+	{
+		min_weight =0;
+	}
+	return min_weight;
+}
+int find_max_flow(int start_node, int end_node)
+{
+	int max_flow =0;
+//	max_flow += get_source_to_dest_path(start_node, end_node);
+
+	int ret = get_source_to_dest_path(start_node, end_node);
+	while(ret != 0)
+	{
+		max_flow += ret;
+		ret = get_source_to_dest_path(start_node, end_node);
+	}
+
+	printf("\nMax Flow is [%d]\n", max_flow);
+	return 1;
+}
+
 void init()
 {
 	int operation =0;
@@ -907,12 +1171,14 @@ void init()
 		printf("15 Shortest Path - Source to all node\n");
 		printf("16 Create Graph with Bridge\n");
 		printf("17 Find Bridge in Graph\n");
-		printf("18 Find MST - Kruskal's Algo");
+		printf("18 Find MST - Kruskal's Algo\n");
+		printf("19 Create Graph for Max Flow\n");
+		printf("20 Find Max Flow");
 		printf("\n0 Exit: \n");
 
 		printf("\nEnter Operation Number:\n");
 		scanf("%d", &operation);
-		if(operation < 0 || operation > 18)
+		if(operation < 0 || operation > 20)
 		{
 			system("clear");
 			printf("\n Invalid operation selected  \n");
@@ -1120,6 +1386,23 @@ void init()
 					if(!find_mst())
 					{
 						printf("\nFail to find MST\n");
+					}
+					break;
+				}
+			case 19:
+				{
+					printf("\nCreate Graph for Max Flow\n");
+					create_graph_for_max_flow();
+					break;
+				}
+			case 20:
+				{
+					printf("\nFind Max Flow\n");
+					printf("\nEnter source node and destination node\n");
+					scanf("%d %d", &start_node, &end_node);
+					if(!find_max_flow(start_node, end_node))
+					{
+						printf("\nFail to find max flow\n");
 					}
 					break;
 				}
