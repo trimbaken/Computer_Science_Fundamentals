@@ -32,7 +32,7 @@ int lps(char S[], int n)
 		for(i =0; i<n-L+1; i++)
 		{
 			j = i+L-1;
-			if(S[i] == S[j])
+			if(S[i] == S[j] && lps[i+1][j-1] == (j-1)-(i+1)+1)
 			{
 				lps[i][j] = lps[i+1][j-1] + 2;
 			}
