@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 using namespace std;
 
 int main()
@@ -11,6 +12,8 @@ int main()
 	umap["root3"] = 1.732;
 	umap["log10"] = 2.302;
 	umap["loge"] = 1.0;
+	umap["PI"] = 3.15;
+	umap.insert(pair<string, double>("HI", 3.56));
 
 	umap.insert(make_pair("e", 2.718));
 
@@ -44,5 +47,24 @@ int main()
 	// stores the bucket number of the key k
 	int number = umap.bucket(it->first);
 	cout << "The bucket number of key " << it->first << " is " << number<<endl;
+
+	unordered_map<string, vector<string> >str_umap;
+
+	str_umap["abc"].push_back("cba");
+	str_umap["abc"].push_back("bca");
+	str_umap["abc"].push_back("cab");
+	str_umap["aac"].push_back("caa");
+	str_umap["aac"].push_back("aca");
+	str_umap["aac"].push_back("aac");
+
+	for(auto& str_key: str_umap)
+	{
+		cout<<"\n Key : "<<str_key.first << ", Value : ";
+		for(auto str_val : str_key.second)
+		{
+			cout<<" "<<str_val;
+		}
+		cout<<endl;
+	}
 	return 0;
 }
