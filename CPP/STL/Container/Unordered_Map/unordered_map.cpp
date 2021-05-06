@@ -66,5 +66,9 @@ int main()
 		}
 		cout<<endl;
 	}
+	unordered_map<int, int>u_int_map;
+	u_int_map[3] = 1;
+	for(auto& a: u_int_map)
+		cout<<a.second;
 	return 0;
 }
