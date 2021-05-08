@@ -1,5 +1,6 @@
 #include<iostream>
 #include<fstream>
+#include<sstream>
 
 using namespace std;
 
@@ -20,17 +21,23 @@ int main(void)
 
 	file.open("file_handling.cpp", ios::app);
 	line = "/* End of Program */";
-	file<<line<<endl;
+//	file<<line<<endl;
 	file.close();
 	file.open("file_handling.cpp", ios::in);
 	while(file)
 	{
 		getline(file, line);
-		cout<<"\n"<<line;
+		stringstream ss(line);
+		string word;
+		cout<<"\n";
+		while(ss >> word)
+			cout<<word<<" ";
+//		cout<<"\n"<<line;
 	}
 
 	cout<<"\nProgram to handle file in cpp\n";
 	return 0;
 }
 
+/* End of Program */
 /* End of Program */
