@@ -40,7 +40,7 @@ void showpq(priority_queue<int, vector<int>, decltype(compare)>gq)
 	priority_queue<int, vector<int>, decltype(compare)>g = gq;
 	cout<<"\n elemets of priority queue are: \n";
 	while (!g.empty()) {
-		cout << ' ' << g.top();
+		cout << ' ' << g.top()<<"\n";
 		g.pop();
 	}
 	cout << '\n';
@@ -58,13 +58,16 @@ void showpq(priority_queue<node_t, vector<node_t>, decltype(compare_node)>gq)
 	node_t temp_node;
 	while (!g.empty()) {
 		temp_node = g.top();
-		cout << ' ' << temp_node.key <<' '<<temp_node.value;
+		cout << ' ' << temp_node.key <<' '<<temp_node.value<<"\n";
 		g.pop();
 	}
 	cout << '\n';
 }
 
-
+bool int_compare(int a, int b)
+{
+	return a<b;
+}
 int main(void)
 {
 	priority_queue<int> int_priority_queue;
@@ -117,10 +120,13 @@ int main(void)
 	node_custom_p_queue.push(node_3);
 	node_custom_p_queue.push(node_4);
 
-	node_t top_node = node_custom_p_queue.top();
+	node_t top_node = node_custom_p_queue.top(); // get top element
 
 	cout<<"\n top node "<<top_node.key<<" "<<top_node.value;
 	showpq(node_custom_p_queue);
+	node_custom_p_queue.pop(); // remove top element
+	showpq(node_custom_p_queue);
+
 	cout<<"\n program to implement priority queue functionalities\n";
 	return 0;
 }
