@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <list>
 using namespace std;
 
 int main()
@@ -31,7 +32,7 @@ int main()
 	else
 		cout << "Found " << key << endl;
 
-	umap["abc"]++;
+	umap["abc"]++; // initialized with 0
 	umap["abc"]++;
 	umap["abc"]++;
 	umap["abc"]++;
@@ -70,5 +71,58 @@ int main()
 	u_int_map[3] = 1;
 	for(auto& a: u_int_map)
 		cout<<a.second;
+
+	list<pair<string, string>>page_list;
+	list<pair<string, string>>:: iterator page_list_itr;
+
+	unordered_map<string, list<pair<string, string>>:: iterator> page_umap;
+
+	page_list.push_front(pair<string, string>("page_1_key", "page_1_value"));
+	page_list_itr = page_list.begin();
+	page_umap["page_1_key"] = page_list_itr;
+	page_list.push_front(pair<string, string>("page_2_key", "page_2_value"));
+	page_list_itr = page_list.begin();
+	page_umap["page_2_key"] = page_list_itr;
+	page_list.push_front(pair<string, string>("page_3_key", "page_3_value"));
+	page_list_itr = page_list.begin();
+	page_umap["page_3_key"] = page_list_itr;
+
+	page_list_itr = page_umap["page_1_key"];
+	cout<<"\n "<<page_list_itr->first<<" "<<page_list_itr->second;
+
+	page_list.remove(*page_list_itr);
+	page_umap.erase("page_1_key");
+
+	if(page_umap.find("page_1_key") != page_umap.end())
+	{
+		cout<<"\n Page 1 found";
+	}
+	else
+	{
+		cout<<"\n Page 1 not found";
+	}
+	for(auto &l : page_list)
+	{
+		cout<<"\n "<<l.first<<" "<<l.second;
+	}
+
+	page_list.push_front(pair<string, string>("page_1_key", "page_1_value"));
+	page_list_itr = page_list.begin();
+	page_umap["page_1_key"] = page_list_itr;
+	if(page_umap.find("page_1_key") != page_umap.end())
+	{
+		cout<<"\n Page 1 found";
+	}
+	else
+	{
+		cout<<"\n Page 1 not found";
+	}
+	for(auto &l : page_list)
+	{
+		cout<<"\n "<<l.first<<" "<<l.second;
+	}
+
+
+	cout<<"\n\n Program to implement functionalities of unordered map\n\n";
 	return 0;
 }
