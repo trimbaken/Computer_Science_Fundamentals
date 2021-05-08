@@ -20,6 +20,15 @@ void print_list(list<int>int_list)
 	return;
 }
 
+void show_pari_list(list<pair<int, string>>pair_list)
+{
+	cout<<"\n Elements of pair list are \n";
+	for(auto l: pair_list)
+	{
+		cout<<"\n"<<l.first<<" "<<l.second;
+	}
+}
+
 bool compare_function(string str1, string str2)
 {
 	cout<<"\nstr1 "<<str1<<" str2 "<<str2;
@@ -111,10 +120,36 @@ int main(void)
 	}
 
 	top_list.sort(compare_sentence);
+	top_list.remove(&sentence_3);
 	for(auto& t : top_list)
 	{
 		cout<<"\n frequency "<<t->frequency<<" sentence "<<t->sentence;
 	}
+
+	print_list(int_list);
+	int_list.remove(200);
+	print_list(int_list);
+
+	list<pair<int, string>>pair_list;
+	list<pair<int, string>>::iterator itr;
+	pair_list.push_back(pair<int, string>(10, "abc"));
+	pair_list.push_back(pair<int, string>(20, "abce"));
+	pair_list.push_back(pair<int, string>(30, "abcf"));
+	itr = pair_list.end();
+	--itr; // store memory address of newly added pair
+	pair_list.push_back(pair<int, string>(40, "abcg"));
+	pair_list.push_back(pair<int, string>(50, "abch"));
+
+	show_pari_list(pair_list);
+	pair_list.remove(pair<int, string>(40, "abcg"));
+
+	pair<int, string>temp_pair;
+	temp_pair = *itr;
+	cout<<"\n stored "<<itr->first<<" "<<temp_pair.second;
+
+	pair_list.remove(*itr);
+	show_pari_list(pair_list);
+
 
 	cout<<"\nProgram to implement function's of list container\n";
 	return 0;
