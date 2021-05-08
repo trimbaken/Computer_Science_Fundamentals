@@ -19,7 +19,7 @@ int main(void)
 	show_a(a, a_size);
 	sort(a, a+a_size);
 	show_a(a, a_size);
-
+	cout<<binary_search(a, a+a_size, 9);
 	if(binary_search(a, a+a_size, 10))
 		cout<<"\n element is present";
 	else
