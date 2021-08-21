@@ -20,7 +20,7 @@ for(i =0; i<marks.length; i++)
 {
 	console.log(marks[i]);
 }
-
+// Every : Returns true if every element in this array satisfies the provided testing function.
 Array.prototype.every = function(fun){
 	for(i=0; i<this.length;i++)
 	{
@@ -54,4 +54,43 @@ else {
 }
 
 
+// Filter : Creates a new array with all of the elements of this array for which the provided filtering function returns true.
 
+Array.prototype.filter = function(fun){
+	let res = new Array(this.length);
+	let count =0;
+	for(i=0; i<this.length;i++)
+	{
+		if(fun(this[i]))
+		{
+			res[count] = this[i];
+			count++;
+		}
+	}
+	return res;
+}
+function is_pass_in_subject(mark)
+{
+	return (mark>=60);
+}
+
+let passed_subject = student_1_marks.filter(is_pass_in_subject);
+console.log(student_1_marks);
+console.log("Student Pass in these subject ", passed_subject);
+
+
+// Map : Creates a new array with the results of calling a provided function on every element in this array.
+
+Array.prototype.map = function(fun) {
+	let res = new Array(this.length);
+	for(i =0; i<this.length; i++)
+	{
+		res[i] = fun(this[i]);
+	}
+	return res;
+}
+
+let numbers = [1,4,9];
+let square_root_of_numbers = numbers.map(Math.sqrt);
+console.log("Numbers : ", numbers);
+console.log("Square Root of Numberes :", square_root_of_numbers);
