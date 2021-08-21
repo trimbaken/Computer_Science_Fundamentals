@@ -94,3 +94,31 @@ let numbers = [1,4,9];
 let square_root_of_numbers = numbers.map(Math.sqrt);
 console.log("Numbers : ", numbers);
 console.log("Square Root of Numberes :", square_root_of_numbers);
+
+
+// Pop()
+
+let last_subject_marks = student_1_marks.pop();
+console.log("last_subject_marks : ", last_subject_marks);
+
+let new_length = student_1_marks.push(90);
+
+// Reverse
+let reverse_marks = student_1_marks.reverse();
+console.log("Reverse of marks ", reverse_marks);
+
+// Sort
+let sorted_marks = student_1_marks.sort();
+console.log("Sorted Marks ", sorted_marks);
+
+// toString
+let marks_str = student_1_marks.toString();
+console.log("Marks ", marks_str);
+for(i =0; i<marks_str.length; i++)
+{
+	console.log(marks_str[i]);
+}
+
+// slice
+console.log("slice (1,2)", student_1_marks.slice(1,2));
+console.log("slice (1,3)", student_1_marks.slice(1,3));
